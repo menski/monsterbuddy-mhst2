@@ -1,6 +1,12 @@
+const routerBase = process.env.NUXT_APP_BASE_URL || '/';
+
 export default {
   // Target: https://go.nuxtjs.dev/config-target
   target: 'static',
+
+  router: {
+    base: routerBase,
+  },
 
   vue: {
     config: {
@@ -74,13 +80,13 @@ export default {
         hid: 'theme-color-dark',
       },
     ],
-    link: [{ rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' }],
+    link: [{ rel: 'icon', type: 'image/x-icon', href: `${routerBase}favicon.ico` }],
     script: [
       {
         defer: true,
         'data-domain': 'monsterbuddy.app',
-        'data-api': '/newt/api/event',
-        src: '/newt/js/script.js',
+        'data-api': `${routerBase}newt/api/event`,
+        src: `${routerBase}newt/js/script.js`,
       },
     ],
 
