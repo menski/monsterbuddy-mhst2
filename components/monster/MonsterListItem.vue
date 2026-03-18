@@ -1,5 +1,5 @@
 <template>
-  <div class="relative flex items-center h-[122px]">
+  <div class="relative flex h-full min-h-[122px] items-start">
     <div class="w-[120px] h-[120px] -mx-3 flex-shrink-0 flex flex-col gap-2 items-center justify-center">
       <MonsterIcon :monster="monster" />
 
@@ -70,6 +70,75 @@
             class="font-semibold"
             :type="attackType"
           />
+        </div>
+      </template>
+
+      <template v-if="showCombatDetailed">
+        <div class="mt-1 space-y-1 whitespace-normal">
+          <div
+            v-for="(attackType, phase) in monster.monster.attackPatterns"
+            :key="phase"
+            class="flex items-center"
+          >
+            <span
+              class="w-20 flex-shrink-0 text-gray-500 dark:text-cool-400"
+              v-text="formatPhase(phase)"
+            />
+
+            <AttackTypeIcon
+              class="w-6 h-6 mr-1"
+              :type="attackType"
+            />
+            <AttackTypeLabel
+              class="font-semibold"
+              :type="attackType"
+            />
+          </div>
+
+          <div
+            v-if="hasElementalWeakness"
+            class="flex items-start"
+          >
+            <span class="w-20 flex-shrink-0 text-gray-500 dark:text-cool-400">
+              Weakness
+            </span>
+
+            <div class="flex flex-wrap gap-x-3 gap-y-1">
+              <div
+                v-for="(weakness, label) in elementalWeaknesses"
+                :key="label"
+                class="flex items-center"
+              >
+                <ElementIcon
+                  class="w-6 h-6 mr-1"
+                  :element="weakness"
+                />
+                <ElementLabel
+                  class="font-semibold"
+                  :element="weakness"
+                />
+                <span
+                  v-if="label !== 'DEFAULT'"
+                  class="ml-1 text-gray-500 dark:text-cool-400"
+                >
+                  ({{ label }})
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <div
+            v-for="(weaponTypes, part) in monster.monster.parts"
+            :key="part"
+            class="flex items-center"
+          >
+            <span
+              class="w-20 flex-shrink-0 text-gray-500 dark:text-cool-400"
+              v-text="formatPart(part)"
+            />
+
+            <WeaponEffectiveness :types="weaponTypes" />
+          </div>
         </div>
       </template>
     </div>
@@ -167,13 +236,38 @@
         return _.includes(['combat'], this.mode);
       },
 
+      showCombatDetailed() {
+        return _.includes(['combat-detailed'], this.mode);
+      },
+
       showRarity() {
         return _.includes(['rarity'], this.mode);
+      },
+
+      hasElementalWeakness() {
+        return this.monster?.monster?.elementalWeakness != null;
+      },
+
+      elementalWeaknesses() {
+        let result = this.monster?.monster?.elementalWeakness;
+
+        if (!_.isObject(result)) {
+          result = { DEFAULT: result };
+        }
+
+        return result;
       },
     },
 
     methods: {
       formatPhase,
+
+      formatPart(part) {
+        if (part === 'DEFAULT') {
+          return 'Default';
+        }
+        return part;
+      },
     },
   };
 </script>

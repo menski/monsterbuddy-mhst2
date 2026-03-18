@@ -8,8 +8,14 @@ const initial = {
 
 const extend = {
   state: {
-    mode: 'combat',
-    autoSwitchModes: ['location', 'location-eldersLair', 'combat', 'rarity'],
+    mode: 'combat-detailed',
+    autoSwitchModes: [
+      'location',
+      'location-eldersLair',
+      'combat',
+      'combat-detailed',
+      'rarity',
+    ],
   },
 };
 

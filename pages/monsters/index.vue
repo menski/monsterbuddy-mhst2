@@ -88,11 +88,12 @@
               v-for="monster in group"
               :key="monster.no"
               :to="`/monsters/${monster.slug}/`"
+              class="block h-full"
             >
               <MonsterListItem
                 :monster="monster"
                 :mode="mode"
-                class="box box-link px-1 overflow-hidden"
+                class="box box-link h-full px-1 overflow-hidden"
               />
             </NuxtLink>
           </div>

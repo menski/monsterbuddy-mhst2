@@ -27,6 +27,7 @@
           { value: 'location', caption: 'Location' },
           { value: 'location-eldersLair', caption: "Elder's Lair" },
           { value: 'combat', caption: 'Attack Pattern' },
+          { value: 'combat-detailed', caption: 'Attack Details' },
           { value: 'rarity', caption: 'Rarity' },
         ];
       },
