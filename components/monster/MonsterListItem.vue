@@ -14,7 +14,7 @@
       >
     </div>
 
-    <div class="w-full mt-3 ml-3 text-sm whitespace-nowrap self-start">
+    <div class="w-full min-w-0 mt-3 ml-3 text-sm whitespace-nowrap self-start">
       <div
         class="leading-tight text-gray-500 dark:text-cool-400"
         v-text="info"
@@ -74,19 +74,19 @@
       </template>
 
       <template v-if="showCombatDetailed">
-        <div class="mt-1 space-y-1 whitespace-normal">
+        <div class="mt-1 space-y-1 whitespace-normal text-[13px] leading-tight">
           <div
             v-for="(attackType, phase) in monster.monster.attackPatterns"
             :key="phase"
             class="flex items-center"
           >
             <span
-              class="w-20 flex-shrink-0 text-gray-500 dark:text-cool-400"
+              class="w-16 flex-shrink-0 text-gray-500 dark:text-cool-400"
               v-text="formatPhase(phase)"
             />
 
             <AttackTypeIcon
-              class="w-6 h-6 mr-1"
+              class="w-5 h-5 mr-1"
               :type="attackType"
             />
             <AttackTypeLabel
@@ -99,7 +99,7 @@
             v-if="hasElementalWeakness"
             class="flex items-start"
           >
-            <span class="w-20 flex-shrink-0 text-gray-500 dark:text-cool-400">
+            <span class="w-16 flex-shrink-0 text-gray-500 dark:text-cool-400">
               Weakness
             </span>
 
@@ -110,7 +110,7 @@
                 class="flex items-center"
               >
                 <ElementIcon
-                  class="w-6 h-6 mr-1"
+                  class="w-5 h-5 mr-1"
                   :element="weakness"
                 />
                 <ElementLabel
@@ -128,23 +128,31 @@
           </div>
 
           <div
-            v-for="(weaponTypes, part) in monster.monster.parts"
-            :key="part"
+            v-for="partGroup in groupedPartEffectiveness"
+            :key="partGroup.key"
             class="flex items-center"
           >
             <span
-              class="w-20 flex-shrink-0 text-gray-500 dark:text-cool-400"
-              v-text="formatPart(part)"
+              class="w-16 flex-shrink-0 text-gray-500 dark:text-cool-400"
+              v-text="partGroup.label"
             />
 
-            <WeaponEffectiveness :types="weaponTypes" />
+            <div class="flex min-w-[5rem] flex-nowrap items-center gap-1">
+              <WeaponTypeIcon
+                v-for="type in partGroup.weaponTypes"
+                :key="type"
+                :type="type"
+                class="w-6 h-6"
+              />
+            </div>
           </div>
         </div>
       </template>
     </div>
 
     <MonsterImage
-      class="w-full h-full p-2 object-contain object-right overflow-hidden"
+      class="h-full w-full flex-shrink p-2 object-contain object-right overflow-hidden"
+      :class="{ 'max-w-[180px]': showCombatDetailed }"
       style="flex-basis: 250px;"
       :monster="monster"
       hideFallback
@@ -257,6 +265,32 @@
 
         return result;
       },
+
+      groupedPartEffectiveness() {
+        return _.reduce(
+          this.monster?.monster?.parts,
+          (result, weaponTypes, part) => {
+            let effectiveWeaponTypes = this.getEffectiveWeaponTypes(weaponTypes);
+            let key = effectiveWeaponTypes.join('|') || 'none';
+            let existingGroup = _.find(result, { key });
+
+            if (existingGroup) {
+              existingGroup.parts.push(this.formatPart(part));
+              existingGroup.label = existingGroup.parts.join(', ');
+            } else {
+              result.push({
+                key,
+                label: this.formatPart(part),
+                parts: [this.formatPart(part)],
+                weaponTypes: effectiveWeaponTypes,
+              });
+            }
+
+            return result;
+          },
+          []
+        );
+      },
     },
 
     methods: {
@@ -267,6 +301,12 @@
           return 'Default';
         }
         return part;
+      },
+
+      getEffectiveWeaponTypes(types = []) {
+        return _.filter(['slash', 'pierce', 'blunt'], (type) => {
+          return _.includes(types, type);
+        });
       },
     },
   };
