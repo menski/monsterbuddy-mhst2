@@ -8,7 +8,7 @@ const initial = {
 
 const extend = {
   state: {
-    mode: 'combat-detailed',
+    mode: 'location',
     autoSwitchModes: [
       'location',
       'location-eldersLair',

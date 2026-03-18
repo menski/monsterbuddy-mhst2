@@ -618,16 +618,6 @@
           } else {
             this.store.sortOrder = 'asc';
           }
-
-          if (
-            config &&
-            config.mode &&
-            this.store.mode !== 'compact' &&
-            (this.store.autoSwitchModes == null ||
-              _.includes(this.store.autoSwitchModes, config.mode))
-          ) {
-            this.store.mode = config.mode;
-          }
         }
       },
 
@@ -656,16 +646,6 @@
 
         if (newValue !== oldValue) {
           this.store[filterKey] = newValue;
-
-          if (
-            newValue != null &&
-            mode != null &&
-            this.store.mode !== 'compact' &&
-            (this.store.autoSwitchModes == null ||
-              _.includes(this.store.autoSwitchModes, mode))
-          ) {
-            this.store.mode = mode;
-          }
         }
       },
 

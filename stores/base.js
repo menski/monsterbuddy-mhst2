@@ -1,5 +1,6 @@
 import _ from 'lodash';
 import { defineStore, setMapStoreSuffix } from 'pinia';
+import storage from '~/services/storage';
 
 import {
   getGenera,
@@ -33,6 +34,28 @@ export function makeMonsterFilterStore(
   initial = {},
   extend = {}
 ) {
+  const persistedStateKeys = _.uniq(
+    [
+      'sortKey',
+      'sortOrder',
+      'nameFilter',
+      'genusFilter',
+      'habitatFilter',
+      'coopQuestFilter',
+      'catavanFilter',
+      'eldersLairFilter',
+      'attackTypeFilter',
+      'attackElementFilter',
+      'ridingActionFilter',
+      'eggColorsFilter',
+      'hatchableFilter',
+      'deviantsFilter',
+      ..._.without(_.keys(extend?.state), 'autoSwitchModes'),
+    ].filter(Boolean)
+  );
+  const storageKey = `filter.${storeId}`;
+  let persistenceInitialized = false;
+
   _.defaults(initial, {
     sortKey: null,
     sortOrder: null,
@@ -414,6 +437,37 @@ export function makeMonsterFilterStore(
     },
 
     actions: {
+      loadFromStorage() {
+        let storedState = storage.get(storageKey, null);
+
+        if (storedState == null) {
+          return;
+        }
+
+        _.forEach(persistedStateKeys, (key) => {
+          if (_.has(storedState, key)) {
+            this[key] = storedState[key];
+          }
+        });
+      },
+
+      saveToStorage() {
+        let persistedState = _.pick(this.$state, persistedStateKeys);
+        storage.set(storageKey, persistedState);
+      },
+
+      initializePersistence() {
+        if (persistenceInitialized || typeof window === 'undefined') {
+          return;
+        }
+
+        persistenceInitialized = true;
+
+        this.$subscribe(() => {
+          this.saveToStorage();
+        });
+      },
+
       resetFilter() {
         this.nameFilter = initial.nameFilter;
         this.genusFilter = initial.genusFilter;
@@ -427,6 +481,10 @@ export function makeMonsterFilterStore(
         this.eggColorsFilter = initial.eggColorsFilter;
         this.hatchableFilter = initial.hatchableFilter;
         this.deviantsFilter = initial.deviantsFilter;
+
+        if (_.includes(persistedStateKeys, 'mode')) {
+          this.mode = extend?.state?.mode;
+        }
       },
 
       resetFilterAndSort() {
