@@ -81,13 +81,26 @@
         <div
           v-for="(attackType, phase) in monster.monster.attackPatterns"
           :key="phase"
+          class="flex items-center gap-2 whitespace-normal"
         >
-          {{ formatPhase(phase) }}:
-
-          <AttackTypeLabel
-            class="font-semibold"
-            :type="attackType"
+          <span
+            class="w-[5.5rem] flex-shrink-0 text-gray-500 dark:text-cool-400"
+            v-text="formatPhase(phase)"
           />
+
+          <div class="flex items-center gap-1">
+            <AttackTypeIcon
+              class="w-5 h-5"
+              :type="getCounterAttackType(attackType)"
+            />
+            <span class="font-semibold text-gray-500 dark:text-cool-400">
+              &gt;
+            </span>
+            <AttackTypeIcon
+              class="w-5 h-5"
+              :type="attackType"
+            />
+          </div>
         </div>
       </template>
 
@@ -103,14 +116,19 @@
               v-text="formatPhase(phase)"
             />
 
-            <AttackTypeIcon
-              class="w-5 h-5 mr-1"
-              :type="attackType"
-            />
-            <AttackTypeLabel
-              class="font-semibold"
-              :type="attackType"
-            />
+            <div class="flex items-center gap-1">
+              <AttackTypeIcon
+                class="w-5 h-5"
+                :type="getCounterAttackType(attackType)"
+              />
+              <span class="font-semibold text-gray-500 dark:text-cool-400">
+                &gt;
+              </span>
+              <AttackTypeIcon
+                class="w-5 h-5"
+                :type="attackType"
+              />
+            </div>
           </div>
 
           <div
@@ -185,6 +203,7 @@
     formatMonsterPrimaryLocation,
     formatCoopQuest,
     formatPhase,
+    getCounterAttackType,
   } from '~/services/utils';
   import { coopQuests, getMonsterLocations } from '~/services/data';
 
@@ -347,6 +366,7 @@
 
     methods: {
       formatPhase,
+      getCounterAttackType,
 
       formatPart(part) {
         if (part === 'DEFAULT') {
