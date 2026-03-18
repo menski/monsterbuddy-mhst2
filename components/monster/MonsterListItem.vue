@@ -1,7 +1,25 @@
 <template>
-  <div class="relative flex h-full min-h-[122px] items-start">
-    <div class="w-[120px] h-[120px] -mx-3 flex-shrink-0 flex flex-col gap-2 items-center justify-center">
-      <MonsterIcon :monster="monster" />
+  <div class="relative flex h-full min-h-[122px] items-start gap-2 py-2 pl-2 pr-2">
+    <div class="w-24 flex-shrink-0 flex flex-col gap-2 items-center">
+      <div
+        class="flex h-24 w-24 items-center justify-center overflow-hidden rounded"
+        :class="mediaClasses"
+        :title="mediaTitle"
+        role="button"
+        tabindex="0"
+        @click.stop.prevent="toggleMedia"
+        @keydown.enter.stop.prevent="toggleMedia"
+        @keydown.space.stop.prevent="toggleMedia"
+      >
+        <MonsterImage
+          v-if="showMonsterImage"
+          class="max-h-[88px] max-w-[88px]"
+          :monster="monster"
+          hideFallback
+        />
+
+        <MonsterIcon v-else class="scale-90" :monster="monster" />
+      </div>
 
       <img
         v-if="monster.hatchable"
@@ -14,7 +32,7 @@
       >
     </div>
 
-    <div class="w-full min-w-0 mt-3 ml-3 text-sm whitespace-nowrap self-start">
+    <div class="flex-1 min-w-0 pt-1 text-sm whitespace-nowrap">
       <div
         class="leading-tight text-gray-500 dark:text-cool-400"
         v-text="info"
@@ -78,10 +96,10 @@
           <div
             v-for="(attackType, phase) in monster.monster.attackPatterns"
             :key="phase"
-            class="flex items-center"
+            class="flex items-center gap-2"
           >
             <span
-              class="w-16 flex-shrink-0 text-gray-500 dark:text-cool-400"
+              class="w-[5.5rem] flex-shrink-0 text-gray-500 dark:text-cool-400"
               v-text="formatPhase(phase)"
             />
 
@@ -97,9 +115,9 @@
 
           <div
             v-if="hasElementalWeakness"
-            class="flex items-start"
+            class="flex items-start gap-2"
           >
-            <span class="w-16 flex-shrink-0 text-gray-500 dark:text-cool-400">
+            <span class="w-[5.5rem] flex-shrink-0 text-gray-500 dark:text-cool-400">
               Weakness
             </span>
 
@@ -130,33 +148,25 @@
           <div
             v-for="partGroup in groupedPartEffectiveness"
             :key="partGroup.key"
-            class="flex items-center"
+            class="flex items-center gap-2"
           >
             <span
-              class="w-16 flex-shrink-0 text-gray-500 dark:text-cool-400"
+              class="w-[5.5rem] flex-shrink-0 text-gray-500 dark:text-cool-400"
               v-text="partGroup.label"
             />
 
-            <div class="flex min-w-[5rem] flex-nowrap items-center gap-1">
+            <div class="flex min-w-[4.5rem] flex-nowrap items-center gap-1">
               <WeaponTypeIcon
                 v-for="type in partGroup.weaponTypes"
                 :key="type"
                 :type="type"
-                class="w-6 h-6"
+                class="w-5 h-5"
               />
             </div>
           </div>
         </div>
       </template>
     </div>
-
-    <MonsterImage
-      class="h-full w-full flex-shrink p-2 object-contain object-right overflow-hidden"
-      :class="{ 'max-w-[180px]': showCombatDetailed }"
-      style="flex-basis: 250px;"
-      :monster="monster"
-      hideFallback
-    />
 
     <div
       v-if="ticket"
@@ -200,9 +210,23 @@
       },
     },
 
+    data() {
+      return {
+        showMonsterImageOverride: false,
+      };
+    },
+
     computed: {
       info() {
         return formatMonsterInfo(this.monster);
+      },
+
+      monsterImageUrl() {
+        try {
+          return require(`~/assets/monsters-small/${this.monster.name}.webp`);
+        } catch (e) {
+          return null;
+        }
       },
 
       location() {
@@ -291,6 +315,34 @@
           []
         );
       },
+
+      hasMonsterImage() {
+        return !!this.monsterImageUrl;
+      },
+
+      showMonsterImage() {
+        return this.showMonsterImageOverride && this.hasMonsterImage;
+      },
+
+      mediaTitle() {
+        if (!this.hasMonsterImage) {
+          return this.monster.name;
+        }
+
+        if (this.showMonsterImage) {
+          return 'Show icon';
+        }
+
+        return 'Show in-game image';
+      },
+
+      mediaClasses() {
+        if (!this.hasMonsterImage) {
+          return null;
+        }
+
+        return 'cursor-pointer transition-colors-slow-interactive hover:bg-gray-100 dark:hover:bg-cool-900/50';
+      },
     },
 
     methods: {
@@ -307,6 +359,14 @@
         return _.filter(['slash', 'pierce', 'blunt'], (type) => {
           return _.includes(types, type);
         });
+      },
+
+      toggleMedia() {
+        if (!this.hasMonsterImage) {
+          return;
+        }
+
+        this.showMonsterImageOverride = !this.showMonsterImageOverride;
       },
     },
   };
